@@ -9,9 +9,10 @@ TypeScript + Vitest project for testing OutSystems REST endpoints.
 ├── src/
 │   └── client.ts          # Reusable OutSystems REST client
 ├── tests/
-│   ├── setup.ts           # Loads .env before each test suite
-│   ├── client.test.ts     # Unit tests for the HTTP client (offline)
-│   └── employees.test.ts  # Integration tests for Employee endpoints
+│   ├── setup.ts                 # Loads .env before each test suite
+│   ├── client.test.ts           # Unit tests for the HTTP client (offline)
+│   ├── create-employee.test.ts  # Use Case #1 — create employee scenarios
+│   └── employees.test.ts        # Integration tests for Employee endpoints
 ├── .env.example           # Environment variable template
 ├── vitest.config.ts
 ├── tsconfig.json
