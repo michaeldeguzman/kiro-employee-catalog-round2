@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+.env
+*.js.map
+.DS_Store
+
+# Local-only conversation transcript (contains unredacted tenant details)
+conversation-transcript.md
