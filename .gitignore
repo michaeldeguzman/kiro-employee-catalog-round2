@@ -7,3 +7,5 @@ coverage/
 
 # Local-only conversation transcript (contains unredacted tenant details)
 conversation-transcript.md
+conversation-transcript-round2.md
+conversation-transcript*.md

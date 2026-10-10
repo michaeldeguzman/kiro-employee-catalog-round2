@@ -73,3 +73,37 @@ Test (designed to bypass the IsActive=True aggregate in Employee_Validate):
 - env_app -> deployed revision 7. npm test -> 20/20 green against the cleaned app.
 
 **FINAL STATE: EmployeeCatalogMCP2 at deployed revision 7, harness removed, IdxEmail_Unique confirmed enforcing, suite 20/20 green.**
+
+---
+
+## Verification — read-only re-check (2026-10-10)
+
+Read-only pass: no files modified, no app changes, no OutSystems MCP/Mentor tools called.
+
+- OUTSYSTEMS_BASE_URL check: set to a real, non-empty, non-placeholder value (value not printed).
+- `npm run typecheck` (`tsc --noEmit`): PASSED, exit 0, no errors.
+
+### Live run #1 — 2026-10-10T06:17:30Z (`.env` as-is)
+- 2 failed | 18 passed (20). Both failures were client-side Vitest timeouts (`Test timed out in 15000ms`) on the FIRST live request in each file — no HTTP response within the 15s per-test timeout (testTimeout=15000ms). No HTTP error status; later live requests in the same run succeeded.
+  - tests/client.test.ts: 6 passed / 0 failed / 0 skipped
+  - tests/create-employee.test.ts: 5 passed / 1 failed (S1 "returns status 201") / 0 skipped
+  - tests/employees.test.ts: 7 passed / 1 failed (GET /employees "returns a 200 status") / 0 skipped
+  - Verbatim summary: `Test Files  2 failed | 1 passed (3)` / `Tests  2 failed | 18 passed (20)` / `Duration  25.76s`
+
+### Live run #2 — 2026-10-10T06:18:14Z (immediate re-run, `.env` as-is)
+- 20 passed (20). The run-#1 failures did not reproduce — non-deterministic, consistent with live-tenant cold-start / network latency on the first calls, not a code defect.
+  - tests/client.test.ts: 6 / 0 / 0
+  - tests/create-employee.test.ts: 6 / 0 / 0
+  - tests/employees.test.ts: 8 / 0 / 0
+  - Verbatim summary: `Test Files  3 passed (3)` / `Tests  20 passed (20)` / `Duration  4.74s`
+
+### Offline run — 2026-10-10T06:18:34Z (`OUTSYSTEMS_BASE_URL=""`)
+- 20 passed (20), mocked fetch, no tenant contact.
+  - tests/client.test.ts: 6 / 0 / 0
+  - tests/create-employee.test.ts: 6 / 0 / 0
+  - tests/employees.test.ts: 8 / 0 / 0
+  - Verbatim summary: `Test Files  3 passed (3)` / `Tests  20 passed (20)` / `Duration  175ms`
+
+Live total: 20 (run #2); 18/20 on run #1 due to the two first-call timeouts. Offline total: 20. Skipped: 0 in every run. Live-only in effect: the 14 tests in create-employee.test.ts (6) + employees.test.ts (8) hit the live tenant; the 6 in client.test.ts are always offline unit tests. (No test is hard-gated to live-only — the two suites fall back to a mocked fetch when OUTSYSTEMS_BASE_URL is unset.)
+
+**RE-CHECK RESULT: typecheck clean; offline 20/20; live 20/20 on re-run after a transient first-call timeout on run #1.**
